@@ -24,14 +24,13 @@ load_dotenv()
 # 1. LLM + embeddings
 # -------------------
 llm = ChatGoogleGenerativeAI(
-    model="gemini-2.5-flash",
+    model="gemini-3.1-flash-lite",
     temperature=0,
-    google_api_key=os.getenv("GOOGLE_API_KEY"),
+    streaming=False,
+    disable_streaming=True,
 )
-
 embeddings = GoogleGenerativeAIEmbeddings(
-    model="gemini-embedding-001",
-    google_api_key=os.getenv("GOOGLE_API_KEY"),
+    model="gemini-embedding-001"
 )
 
 # -------------------
@@ -241,4 +240,3 @@ def thread_has_document(thread_id: str) -> bool:
 
 def thread_document_metadata(thread_id: str) -> dict:
     return _THREAD_METADATA.get(str(thread_id), {})
-
