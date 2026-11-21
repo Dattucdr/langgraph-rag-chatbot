@@ -25,9 +25,7 @@ load_dotenv()
 # -------------------
 llm = ChatGoogleGenerativeAI(
     model="gemini-3.1-flash-lite",
-    temperature=0,
-    streaming=False,
-    disable_streaming=True,
+    temperature=0
 )
 embeddings = GoogleGenerativeAIEmbeddings(
     model="gemini-embedding-001"
