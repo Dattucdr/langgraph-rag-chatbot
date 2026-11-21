@@ -116,27 +116,61 @@ if user_input:
     with st.chat_message("assistant"):
         status_holder = {"box": None}
 
+        def extract_text(content):
+             """Extract readable text from Gemini content blocks."""
+
+             if isinstance(content, str):
+                  return content
+
+             if isinstance(content, list):
+                text_parts = []
+
+                for block in content:
+                    if isinstance(block, dict):
+                        if block.get("type") == "text":
+                            text_parts.append(block.get("text", ""))
+
+                        elif isinstance(block, str):
+                            text_parts.append(block)
+
+                return "".join(text_parts)
+
+             return ""
+
+
         def ai_only_stream():
-            for message_chunk, _ in chatbot.stream(
+
+            for message_chunk, metadata in chatbot.stream(
                 {"messages": [HumanMessage(content=user_input)]},
                 config=CONFIG,
                 stream_mode="messages",
             ):
+
+                # Display tool execution status
                 if isinstance(message_chunk, ToolMessage):
+
                     tool_name = getattr(message_chunk, "name", "tool")
+
                     if status_holder["box"] is None:
                         status_holder["box"] = st.status(
-                            f"🔧 Using `{tool_name}` …", expanded=True
-                        )
-                    else:
-                        status_holder["box"].update(
-                            label=f"🔧 Using `{tool_name}` …",
-                            state="running",
-                            expanded=True,
+                            f"🔧 Using `{tool_name}` ...",
+                            expanded=True
                         )
 
+                    else:
+                        status_holder["box"].update(
+                            label=f"🔧 Using `{tool_name}` ...",
+                            state="running",
+                            expanded=True
+                        )
+
+                # Extract only readable AI response text
                 if isinstance(message_chunk, AIMessage):
-                    yield message_chunk.content
+
+                    content = extract_text(message_chunk.content)
+
+                    if content:
+                        yield content
 
         ai_message = st.write_stream(ai_only_stream())
 
